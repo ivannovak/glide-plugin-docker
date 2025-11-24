@@ -1,97 +1,243 @@
-# Glide Docker Plugin
+# glide-plugin-docker
 
-External Docker plugin for Glide - provides Docker and Docker Compose integration.
+[![CI](https://github.com/ivannovak/glide-plugin-docker/actions/workflows/ci.yml/badge.svg)](https://github.com/ivannovak/glide-plugin-docker/actions/workflows/ci.yml)
+[![Semantic Release](https://github.com/ivannovak/glide-plugin-docker/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/ivannovak/glide-plugin-docker/actions/workflows/semantic-release.yml)
+
+Docker and Docker Compose integration plugin for [Glide CLI](https://github.com/ivannovak/glide).
 
 ## Overview
 
-This plugin provides Docker and Docker Compose functionality for Glide, including:
-
-- Automatic Docker Compose file resolution
-- Container management
-- Docker daemon health checking
-- Interactive command support (exec, logs, etc.)
-- Development mode awareness (single-repo vs multi-worktree)
+This plugin provides Docker and Docker Compose functionality for Glide. When installed, Glide will automatically detect Docker projects and provide intelligent container management with automatic compose file resolution.
 
 ## Installation
 
-### Method 1: Build from Source
+### From GitHub Releases (Recommended)
+
+```bash
+glide plugins install github.com/ivannovak/glide-plugin-docker
+```
+
+### From Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/ivannovak/glide-plugin-docker
+git clone https://github.com/ivannovak/glide-plugin-docker.git
 cd glide-plugin-docker
 
-# Build the plugin
-make build
-
-# Install to PATH
-sudo cp glide-plugin-docker /usr/local/bin/
+# Build and install (requires Go 1.24+)
+make install
 ```
 
-### Method 2: Go Install (when published)
+## What It Detects
 
-```bash
-go install github.com/ivannovak/glide-plugin-docker/cmd/glide-plugin-docker@latest
+The plugin automatically detects Docker projects by looking for:
+
+- **Compose files**: `docker-compose.yml`, `docker-compose.yaml`, `compose.yml`, `compose.yaml`
+- **Override files**: `docker-compose.override.yml`, `docker-compose.override.yaml`
+- **Dockerfile**: `Dockerfile`, `*.dockerfile`
+- **Docker daemon status**: Checks if Docker is running
+
+### Automatic Compose File Resolution
+
+The plugin intelligently finds and uses Docker Compose files:
+
+1. Searches for main compose file (`docker-compose.yml`, `compose.yml`, etc.)
+2. Automatically includes override files if present
+3. Handles both Docker Compose V1 and V2 syntax
+
+## Available Commands
+
+Once a Docker project is detected, the following command becomes available:
+
+### Container Management
+- `docker` (alias: `d`) - Pass-through to `docker compose` with automatic file resolution
+  - Automatically detects and applies compose files
+  - Supports all docker compose commands and flags
+  - Interactive TTY support for exec and run commands
+
+## Configuration
+
+The plugin works out-of-the-box without configuration. However, you can customize behavior in your `.glide.yml`:
+
+```yaml
+plugins:
+  docker:
+    enabled: true
+    # Additional configuration options can be added here in the future
 ```
 
-## Usage
+## Examples
 
-Once installed, the plugin provides the `docker` command to Glide:
+### Basic Docker Operations
 
 ```bash
-# Start containers
+# Start containers in detached mode
 glide docker up -d
 
-# Stop containers
+# Stop and remove containers
 glide docker down
 
 # View running containers
 glide docker ps
 
-# Execute commands in containers
-glide docker exec php bash
+# View all containers (including stopped)
+glide docker ps -a
+
+# Restart specific service
+glide docker restart nginx
+
+# View service logs
+glide docker logs nginx
+
+# Follow logs in real-time
+glide docker logs -f php
+```
+
+### Interactive Commands
+
+```bash
+# Execute command in container
+glide docker exec php ls -la
+
+# Interactive shell
 glide docker exec -it php bash
 
-# View logs
-glide docker logs -f nginx
+# Run one-off command
+glide docker run --rm php php -v
+```
 
-# Restart services
-glide docker restart php
+### Building and Rebuilding
 
-# Rebuild containers
+```bash
+# Build or rebuild services
+glide docker build
+
+# Build with no cache
 glide docker build --no-cache
+
+# Build specific service
+glide docker build nginx
+```
+
+### Advanced Operations
+
+```bash
+# Pull latest images
+glide docker pull
+
+# Show docker compose configuration
+glide docker config
+
+# Validate compose file
+glide docker config --quiet
+
+# Scale services
+glide docker up -d --scale php=3
+
+# Remove volumes
+glide docker down -v
+```
+
+### Common Workflows
+
+```bash
+# Development workflow
+glide docker up -d          # Start services
+glide docker logs -f app    # Watch logs
+glide docker exec -it app bash  # Enter container
+glide docker down           # Stop services
+
+# Debugging workflow
+glide docker ps             # Check container status
+glide docker logs app       # View logs
+glide docker exec app env   # Check environment
+glide docker restart app    # Restart service
+
+# Clean rebuild
+glide docker down -v        # Stop and remove volumes
+glide docker build --no-cache  # Rebuild from scratch
+glide docker up -d          # Start fresh
 ```
 
 ## Development
 
+### Prerequisites
+
+- Go 1.24 or higher
+- Make (optional, for convenience targets)
+- Docker and Docker Compose
+
 ### Building
 
 ```bash
-# Build for current platform
-make build
-
-# Build for all platforms
-make build-all
-
 # Run tests
 make test
 
-# Tidy dependencies
-make tidy
+# Run tests with coverage
+make test-coverage
+
+# Run linters
+make lint
+
+# Format code
+make fmt
 ```
 
-### Current Status
+### Testing
 
-**Phase 6: External Plugin Extraction** (In Progress)
+The plugin includes comprehensive tests for:
 
-The plugin structure is complete, but currently relies on Glide's internal packages via a local replace directive. To make this fully standalone:
+- Compose file detection
+- Docker daemon status checking
+- Command execution
+- File resolution logic
 
-1. Glide core needs to export necessary context types to public packages
-2. Update plugin imports to use public SDK types
-3. Remove the local replace directive
+```bash
+# Run all tests
+go test ./...
 
-This will be completed in a future phase when the public SDK API is finalized.
+# Run tests with verbose output
+go test -v ./...
+
+# Run tests with coverage
+go test -cover ./...
+```
+
+## How It Works
+
+The plugin provides a complete pass-through to `docker compose`, but adds intelligent features:
+
+1. **Auto-detection**: Finds compose files in your project
+2. **File Resolution**: Automatically applies the correct `-f` flags
+3. **Interactive Support**: Detects when commands need TTY (exec, run)
+4. **Error Handling**: Provides helpful error messages for common issues
+
+All arguments are passed directly to `docker compose` without modification, ensuring full compatibility with native Docker Compose commands.
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass (`make test`)
+6. Submit a pull request
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Related Projects
+
+- [Glide](https://github.com/ivannovak/glide) - The main Glide CLI
+- [glide-plugin-go](https://github.com/ivannovak/glide-plugin-go) - Go plugin for Glide
+- [glide-plugin-node](https://github.com/ivannovak/glide-plugin-node) - Node.js plugin for Glide
+- [glide-plugin-php](https://github.com/ivannovak/glide-plugin-php) - PHP plugin for Glide
+
+## Support
+
+- [GitHub Issues](https://github.com/ivannovak/glide-plugin-docker/issues)
+- [Glide Documentation](https://github.com/ivannovak/glide#readme)
+- [Plugin Development Guide](https://github.com/ivannovak/glide/blob/main/docs/PLUGIN_DEVELOPMENT.md)

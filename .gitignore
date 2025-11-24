@@ -1,33 +1,61 @@
-# Binaries
-glide-plugin-docker
-dist/
-
-# Go
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+glide-plugin-docker
+
+# Test binary, built with `go test -c`
 *.test
+
+# Output of the go coverage tool
 *.out
+coverage.txt
+coverage.html
+
+# Go workspace file
 go.work
 go.work.sum
 
-# Coverage
-*.cover
-coverage.html
-coverage.txt
+# Dependency directories
+vendor/
 
-# IDE
+# Node modules for semantic-release
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+bin/
+
+# IDE files
 .idea/
-.vscode/
 *.swp
 *.swo
 *~
+.vscode/
+*.iml
 
-# Node.js
-node_modules/
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Debug files
+debug
+__debug_bin
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# Log files
+*.log

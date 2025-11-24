@@ -3,7 +3,7 @@ module github.com/ivannovak/glide-plugin-docker
 go 1.24
 
 require (
-	github.com/ivannovak/glide v0.0.0-00010101000000-000000000000
+	github.com/ivannovak/glide v1.3.0
 	github.com/spf13/cobra v1.8.0
 )
 
