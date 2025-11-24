@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	v1 "github.com/ivannovak/glide/pkg/plugin/sdk/v1"
+	v1 "github.com/ivannovak/glide/v2/pkg/plugin/sdk/v1"
 )
 
 // GRPCPlugin implements the gRPC GlidePluginServer interface
@@ -179,67 +179,3 @@ func (p *GRPCPlugin) isInteractiveCommand(args []string) bool {
 	return false
 }
 
-// DetectContext implements context detection for Docker projects
-func (p *GRPCPlugin) DetectContext(ctx context.Context, req *v1.ContextRequest) (*v1.ContextResponse, error) {
-	projectRoot := req.ProjectRoot
-	if projectRoot == "" {
-		projectRoot = req.WorkingDir
-	}
-
-	// Check for docker-compose files
-	composeFiles := p.findComposeFiles(projectRoot)
-	if len(composeFiles) == 0 {
-		return &v1.ContextResponse{
-			ExtensionName: "docker",
-			Detected:      false,
-		}, nil
-	}
-
-	// Check if Docker daemon is running
-	dockerRunning := p.checkDockerDaemon()
-
-	// Build response
-	resp := &v1.ContextResponse{
-		ExtensionName: "docker",
-		Detected:      true,
-		Metadata:      make(map[string]string),
-		Frameworks:    []string{},
-		Tools:         []string{"docker", "docker-compose"},
-	}
-
-	// Add metadata
-	resp.Metadata["docker_running"] = fmt.Sprintf("%v", dockerRunning)
-	resp.Metadata["compose_files"] = fmt.Sprintf("%d files found", len(composeFiles))
-
-	// Get Docker version if available
-	if dockerRunning {
-		if version := p.getDockerVersion(); version != "" {
-			resp.Version = version
-		}
-	}
-
-	return resp, nil
-}
-
-// checkDockerDaemon verifies if Docker daemon is running
-func (p *GRPCPlugin) checkDockerDaemon() bool {
-	cmd := exec.Command("docker", "info")
-	err := cmd.Run()
-	return err == nil
-}
-
-// getDockerVersion gets the Docker version
-func (p *GRPCPlugin) getDockerVersion() string {
-	cmd := exec.Command("docker", "--version")
-	output, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	// Output is like "Docker version 24.0.6, build ed223bc"
-	// Extract just the version number
-	parts := string(output)
-	if len(parts) > 15 {
-		return parts
-	}
-	return ""
-}
