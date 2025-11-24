@@ -1,0 +1,192 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  GO_VERSION: '1.24'
+
+jobs:
+  test:
+    name: Test Before Release
+    uses: ./.github/workflows/ci.yml  # Reuse CI validation
+
+  build:
+    name: Build Cross-Platform Binaries
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+            goos: linux
+            goarch: amd64
+          - os: linux
+            arch: arm64
+            goos: linux
+            goarch: arm64
+          - os: darwin
+            arch: amd64
+            goos: darwin
+            goarch: amd64
+          - os: darwin
+            arch: arm64
+            goos: darwin
+            goarch: arm64
+          - os: windows
+            arch: amd64
+            goos: windows
+            goarch: amd64
+            ext: .exe
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Get version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build binary
+      run: |
+        CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+        go build -ldflags="-s -w" \
+        -o glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} .
+
+    - name: Generate checksum
+      run: |
+        if [[ "${{ matrix.os }}" == "windows" ]]; then
+          sha256sum glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}.exe > glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}.exe.sha256
+        else
+          sha256sum glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }} > glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}.sha256
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-${{ matrix.os }}-${{ matrix.arch }}
+        path: |
+          glide-plugin-docker-*
+          *.sha256
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: binary-*
+        path: ./artifacts
+        merge-multiple: true
+
+    - name: Get version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        # Check if CHANGELOG.md exists (created by semantic-release)
+        if [[ -f "CHANGELOG.md" ]]; then
+          # Extract the latest release notes from CHANGELOG.md
+          awk '/^## \[?[0-9]+\.[0-9]+\.[0-9]+/,/^## \[?[0-9]+\.[0-9]+\.[0-9]+/{if (NR>1 && /^## \[?[0-9]+\.[0-9]+\.[0-9]+/) exit; print}' CHANGELOG.md > RELEASE_NOTES.md
+        else
+          # Fallback to git log if no CHANGELOG.md
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [[ -n "$PREV_TAG" ]]; then
+            echo "## What's Changed" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+          else
+            echo "## Initial Release" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "This is the first release of Glide Docker Plugin." >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+          fi
+        fi
+
+        # Add installation instructions
+        cat << 'EOF' >> RELEASE_NOTES.md
+
+        ## Installation
+
+        ### Via Glide CLI (Recommended)
+        ```bash
+        glide plugins install github.com/ivannovak/glide-plugin-docker
+        ```
+
+        ### Manual Installation
+
+        1. Download the appropriate binary for your system from the assets below
+        2. Make it executable: `chmod +x glide-plugin-docker-*`
+        3. Move to Glide plugins directory: `mv glide-plugin-docker-* ~/.glide/plugins/glide-plugin-docker`
+
+        ### Verify Installation
+        ```bash
+        glide plugins list
+        ```
+
+        ## Checksums
+
+        All binaries include SHA256 checksums for verification:
+        ```bash
+        sha256sum -c glide-plugin-docker-*.sha256
+        ```
+        EOF
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: Glide Docker Plugin ${{ steps.version.outputs.version }}
+        body_path: RELEASE_NOTES.md
+        files: |
+          ./artifacts/glide-plugin-docker-*
+        draft: false
+        prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
