@@ -1,3 +1,10 @@
+## [2.2.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.1.0...v2.2.0) (2025-11-24)
+
+
+### Features
+
+* migrate to Glide v2 module path ([f8a7254](https://github.com/ivannovak/glide-plugin-docker/commit/f8a7254cd6959ca72625b2916353e1b98a4b8cdc))
+
 ## [2.1.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.0.0...v2.1.0) (2025-11-24)
 
 
