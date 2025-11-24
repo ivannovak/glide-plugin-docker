@@ -1,3 +1,10 @@
+## [2.1.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.0.0...v2.1.0) (2025-11-24)
+
+
+### Features
+
+* add release workflow for cross-platform binaries ([47ad3b5](https://github.com/ivannovak/glide-plugin-docker/commit/47ad3b59e9913f104502a647d9b10375a8465ee8))
+
 ## [2.0.0](https://github.com/ivannovak/glide-plugin-docker/compare/v1.0.0...v2.0.0) (2025-11-24)
 
 
