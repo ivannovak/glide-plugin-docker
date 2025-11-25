@@ -15,13 +15,8 @@ env:
   GO_VERSION: '1.24'
 
 jobs:
-  test:
-    name: Test Before Release
-    uses: ./.github/workflows/ci.yml  # Reuse CI validation
-
   build:
     name: Build Cross-Platform Binaries
-    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
