@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.2.0...v2.3.0) (2025-11-25)
+
+
+### Features
+
+* use published Glide v2.2.0 ([46c90cb](https://github.com/ivannovak/glide-plugin-docker/commit/46c90cbdce196ab6c9de9db25628ab0f3849c039))
+
 ## [2.2.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.1.0...v2.2.0) (2025-11-24)
 
 
