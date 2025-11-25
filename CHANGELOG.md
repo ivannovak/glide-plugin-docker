@@ -1,3 +1,10 @@
+## [2.4.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.2...v2.4.0) (2025-11-25)
+
+
+### Features
+
+* add main entry point for plugin binary ([b6cb709](https://github.com/ivannovak/glide-plugin-docker/commit/b6cb70945c1bd6e09749865472eda00d322a1ac3))
+
 ## [2.3.2](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.1...v2.3.2) (2025-11-25)
 
 
