@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.1...v2.3.2) (2025-11-25)
+
+
+### Bug Fixes
+
+* correct build path in release workflow ([eb7c4b0](https://github.com/ivannovak/glide-plugin-docker/commit/eb7c4b0e87569aba0b32383e2adec651023bc7cd))
+
 ## [2.3.1](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.0...v2.3.1) (2025-11-25)
 
 
