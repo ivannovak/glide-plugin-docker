@@ -77,7 +77,7 @@ jobs:
       run: |
         CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
         go build -ldflags="-s -w" \
-        -o glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} .
+        -o glide-plugin-docker-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/glide-plugin-docker
 
     - name: Generate checksum
       run: |
