@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.0...v2.3.1) (2025-11-25)
+
+
+### Bug Fixes
+
+* remove CI dependency from release workflow ([4c0160d](https://github.com/ivannovak/glide-plugin-docker/commit/4c0160decacd6f0052aac6a7577db13475b821ff))
+
 ## [2.3.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.2.0...v2.3.0) (2025-11-25)
 
 
