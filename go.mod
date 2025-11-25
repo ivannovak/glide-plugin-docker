@@ -2,7 +2,7 @@ module github.com/ivannovak/glide-plugin-docker
 
 go 1.24
 
-require github.com/ivannovak/glide/v2 v2.1.2
+require github.com/ivannovak/glide/v2 v2.2.0
 
 require (
 	github.com/creack/pty v1.1.24 // indirect
@@ -22,5 +22,3 @@ require (
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 )
-
-replace github.com/ivannovak/glide/v2 => ../glide
