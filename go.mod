@@ -2,10 +2,7 @@ module github.com/ivannovak/glide-plugin-docker
 
 go 1.24.0
 
-require github.com/ivannovak/glide/v2 v2.2.0
-
-// TODO: Remove this replace directive once glide v2.4.0 with SDK v2 is released
-replace github.com/ivannovak/glide/v2 => ../glide
+require github.com/ivannovak/glide/v3 v3.0.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
