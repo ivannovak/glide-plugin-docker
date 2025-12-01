@@ -1,3 +1,42 @@
+## [3.0.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.4.0...v3.0.0) (2025-12-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* This plugin now requires Glide v2.4.0+ with SDK v2.
+
+Migration to SDK v2:
+- Replace v1.BasePlugin with v2.BasePlugin[Config]
+- Add type-safe Config struct with defaultProfile, autoDetectFiles,
+  and projectName options
+- Update main.go to use v2.Serve()
+- Create new plugin.go with SDK v2 patterns
+- Remove legacy grpc_plugin.go (v1 implementation)
+- Add Docker health check in HealthCheck()
+- Declare RequiresDocker capability in metadata
+
+The plugin now uses the declarative SDK v2 pattern with:
+- Type-safe configuration via Go generics
+- Unified lifecycle management with Docker availability check
+- Declarative commands via Commands() method
+
+Note: go.mod includes a replace directive pointing to local glide
+repo until v2.4.0 with SDK v2 is released.
+
+* feat!: upgrade to glide SDK v3.0.0
+* Updates module dependency from glide/v2 to glide/v3 v3.0.0.
+This aligns with the SDK v2 type-safe configuration system released in glide v3.0.0.
+
+- Update go.mod to require github.com/ivannovak/glide/v3 v3.0.0
+- Remove local replace directive (now using published version)
+- Update all imports from /v2/ to /v3/
+
+* ci: add CI workflow for PR validation
+
+### Features
+
+* upgrade to glide SDK v3.0.0 ([#1](https://github.com/ivannovak/glide-plugin-docker/issues/1)) ([4cd1535](https://github.com/ivannovak/glide-plugin-docker/commit/4cd15356d89752d089ec21172c58eb535db2f00f))
+
 ## [2.4.0](https://github.com/ivannovak/glide-plugin-docker/compare/v2.3.2...v2.4.0) (2025-11-25)
 
 
