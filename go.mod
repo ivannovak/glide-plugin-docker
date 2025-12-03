@@ -1,8 +1,8 @@
-module github.com/ivannovak/glide-plugin-docker
+module github.com/glide-cli/glide-plugin-docker
 
 go 1.24.0
 
-require github.com/ivannovak/glide/v3 v3.0.0
+require github.com/glide-cli/glide/v3 v3.2.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
