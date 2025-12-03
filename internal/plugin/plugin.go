@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ivannovak/glide-plugin-docker/pkg/version"
-	"github.com/ivannovak/glide/v3/pkg/plugin/sdk/v2"
+	"github.com/glide-cli/glide-plugin-docker/pkg/version"
+	"github.com/glide-cli/glide/v3/pkg/plugin/sdk/v2"
 )
 
 // Config defines the plugin's type-safe configuration.
@@ -49,7 +49,7 @@ func (p *DockerPlugin) Metadata() v2.Metadata {
 		Author:      "Glide Team",
 		Description: "Docker and Docker Compose integration for Glide",
 		License:     "MIT",
-		Homepage:    "https://github.com/ivannovak/glide-plugin-docker",
+		Homepage:    "https://github.com/glide-cli/glide-plugin-docker",
 		Tags:        []string{"docker", "compose", "containers"},
 		Capabilities: v2.Capabilities{
 			RequiresDocker: true,

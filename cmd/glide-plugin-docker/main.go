@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ivannovak/glide-plugin-docker/internal/plugin"
-	"github.com/ivannovak/glide/v3/pkg/plugin/sdk/v2"
+	"github.com/glide-cli/glide-plugin-docker/internal/plugin"
+	"github.com/glide-cli/glide/v3/pkg/plugin/sdk/v2"
 )
 
 func main() {
